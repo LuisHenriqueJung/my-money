@@ -262,306 +262,436 @@ class AllTransactionsScreen extends StatelessWidget {
                   ),
                 ),
               )
-              : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (accounts.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE8F5E9), // verde bem claro
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(
-                            color: Color(0xFF43A047),
-                            width: 2,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 18.0,
-                            horizontal: 28.0,
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.account_balance_wallet,
-                                color: Color(0xFF43A047),
-                                size: 28,
+              : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (accounts.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            child: Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
                               ),
-                              const SizedBox(width: 10),
-                              Column(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 18,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Saldo Geral',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Color(0xFF388E3C),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.account_balance_wallet,
+                                          color: Color(0xFF43A047),
+                                          size: 28,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'R\$ ${saldoAtual.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            color: Color(0xFF43A047),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 22,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (accounts.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            child: Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 18,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Saldo por Conta',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Color(0xFF388E3C),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...contasAtivas.map((acc) {
+                                      double saldo = acc.initialBalance;
+                                      for (var t in transactions.where(
+                                        (t) => t.accountId == acc.id,
+                                      )) {
+                                        if (t.type == 'entrada') {
+                                          saldo += t.amount;
+                                        } else {
+                                          saldo -= t.amount;
+                                        }
+                                      }
+                                      return ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        leading: const Icon(
+                                          Icons.account_balance,
+                                          color: Color(0xFF43A047),
+                                        ),
+                                        title: Text(
+                                          acc.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        trailing: Text(
+                                          'R\$ ${saldo.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            color:
+                                                saldo >= 0
+                                                    ? Color(0xFF43A047)
+                                                    : Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 18,
+                              ),
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'R\$ ${saldoAtual.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      color: Color(0xFF43A047),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 22,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
                                   const Text(
-                                    'Saldo Atual',
+                                    'Gastos por Categoria',
                                     style: TextStyle(
-                                      color: Color(0xFF388E3C),
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.2,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Card(
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Gastos por Categoria',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              height: 180,
-                              child:
-                                  totalGastos > 0
-                                      ? PieChart(
-                                        PieChartData(
-                                          sections: [
-                                            for (
-                                              int i = 0;
-                                              i < categorias.length;
-                                              i++
+                                  const SizedBox(height: 4),
+                                  Divider(
+                                    color: Colors.grey.shade300,
+                                    thickness: 1,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    height: 180,
+                                    child:
+                                        totalGastos > 0
+                                            ? PieChart(
+                                              PieChartData(
+                                                sections: [
+                                                  for (
+                                                    int i = 0;
+                                                    i < categorias.length;
+                                                    i++
+                                                  )
+                                                    PieChartSectionData(
+                                                      color:
+                                                          chartColors[i %
+                                                              chartColors
+                                                                  .length],
+                                                      value:
+                                                          gastosPorCategoria[categorias[i]],
+                                                      title: categorias[i],
+                                                      radius: 60,
+                                                      titleStyle:
+                                                          const TextStyle(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                    ),
+                                                ],
+                                                sectionsSpace: 2,
+                                                centerSpaceRadius: 40,
+                                              ),
                                             )
-                                              PieChartSectionData(
-                                                color:
-                                                    chartColors[i %
-                                                        chartColors.length],
-                                                value:
-                                                    gastosPorCategoria[categorias[i]],
-                                                title: categorias[i],
-                                                radius: 60,
-                                                titleStyle: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
+                                            : Center(
+                                              child: Text(
+                                                'Nenhum gasto cadastrado ainda.',
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade500,
+                                                  fontSize: 16,
                                                 ),
                                               ),
-                                          ],
-                                          sectionsSpace: 2,
-                                          centerSpaceRadius: 40,
-                                        ),
-                                      )
-                                      : Center(
-                                        child: Text(
-                                          'Nenhum gasto cadastrado ainda.',
-                                          style: TextStyle(
-                                            color: Colors.grey.shade500,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                            ),
-                            if (totalGastos > 0) const SizedBox(height: 12),
-                            if (totalGastos > 0)
-                              Wrap(
-                                spacing: 12,
-                                children: [
-                                  for (int i = 0; i < categorias.length; i++)
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                            ),
+                                  ),
+                                  if (totalGastos > 0)
+                                    const SizedBox(height: 12),
+                                  if (totalGastos > 0)
+                                    Wrap(
+                                      spacing: 12,
                                       children: [
-                                        Container(
-                                          width: 14,
-                                          height: 14,
-                                          decoration: BoxDecoration(
-                                            color:
-                                                chartColors[i %
-                                                    chartColors.length],
-                                            shape: BoxShape.circle,
+                                        for (
+                                          int i = 0;
+                                          i < categorias.length;
+                                          i++
+                                        )
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 14,
+                                                height: 14,
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      chartColors[i %
+                                                          chartColors.length],
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                categorias[i],
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          categorias[i],
-                                          style: const TextStyle(fontSize: 13),
-                                        ),
                                       ],
                                     ),
                                 ],
                               ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    child: Card(
-                      elevation: 6,
-                      color: Colors.white,
-                      shadowColor: Colors.black26,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 8.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(
-                                top: 8.0,
-                                left: 4.0,
-                                bottom: 8.0,
-                              ),
-                              child: Text(
-                                'Últimos lançamentos',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
                             ),
-                            Divider(color: Colors.grey.shade300, thickness: 1),
-                            SizedBox(
-                              height: 320,
-                              child:
-                                  ultimos10.isEmpty
-                                      ? Center(
-                                        child: Text(
-                                          'Nenhum lançamento recente.',
-                                          style: TextStyle(
-                                            color: Colors.grey.shade600,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      )
-                                      : ListView.builder(
-                                        itemCount: ultimos10.length,
-                                        itemBuilder: (context, index) {
-                                          final t = ultimos10[index];
-                                          final account = accountProvider
-                                              .accounts
-                                              .firstWhere(
-                                                (a) => a.id == t.accountId,
-                                              );
-                                          final isEntrada = t.type == 'entrada';
-                                          return ListTile(
-                                            leading: Icon(
-                                              isEntrada
-                                                  ? Icons.arrow_downward
-                                                  : Icons.arrow_upward,
-                                              color:
-                                                  isEntrada
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                            ),
-                                            title: Text(
-                                              t.description,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            subtitle: Text(
-                                              '${t.category} | ${isEntrada ? 'Entrada' : 'Saída'} - ${t.date.day}/${t.date.month}/${t.date.year}\nConta: ${account.name}',
-                                            ),
-                                            trailing: Text(
-                                              (isEntrada ? '+ ' : '- ') +
-                                                  'R\$ ${t.amount.toStringAsFixed(2)}',
-                                              style: TextStyle(
-                                                color:
-                                                    isEntrada
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      (
-                                                        context,
-                                                      ) => TransactionEditScreen(
-                                                        transaction: t,
-                                                        onFinish: (
-                                                          message,
-                                                          success,
-                                                        ) {
-                                                          ScaffoldMessenger.of(
-                                                            context,
-                                                          ).showSnackBar(
-                                                            SnackBar(
-                                                              content: Text(
-                                                                message,
-                                                              ),
-                                                              backgroundColor:
-                                                                  success
-                                                                      ? Colors
-                                                                          .green
-                                                                      : Colors
-                                                                          .red,
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 8.0,
+                          ),
+                          child: Card(
+                            elevation: 6,
+                            color: Colors.white,
+                            shadowColor: Colors.black26,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
                             ),
-                            Padding(
+                            child: Padding(
                               padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0,
                                 vertical: 8.0,
                               ),
-                              child: Center(
-                                child: OutlinedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) =>
-                                                const AllTransactionsFullScreen(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(
+                                      top: 8.0,
+                                      left: 4.0,
+                                      bottom: 8.0,
+                                    ),
+                                    child: Text(
+                                      'Últimos lançamentos',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    );
-                                  },
-                                  child: const Text('Ver todos'),
-                                ),
+                                    ),
+                                  ),
+                                  Divider(
+                                    color: Colors.grey.shade300,
+                                    thickness: 1,
+                                  ),
+                                  SizedBox(
+                                    height: 320,
+                                    child:
+                                        ultimos10.isEmpty
+                                            ? Center(
+                                              child: Text(
+                                                'Nenhum lançamento recente.',
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade600,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            )
+                                            : ListView.builder(
+                                              itemCount: ultimos10.length,
+                                              itemBuilder: (context, index) {
+                                                final t = ultimos10[index];
+                                                final account = accountProvider
+                                                    .accounts
+                                                    .firstWhere(
+                                                      (a) =>
+                                                          a.id == t.accountId,
+                                                    );
+                                                final isEntrada =
+                                                    t.type == 'entrada';
+                                                return ListTile(
+                                                  leading: Icon(
+                                                    isEntrada
+                                                        ? Icons.arrow_downward
+                                                        : Icons.arrow_upward,
+                                                    color:
+                                                        isEntrada
+                                                            ? Colors.green
+                                                            : Colors.red,
+                                                  ),
+                                                  title: Text(
+                                                    t.description,
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  subtitle: Text(
+                                                    '${t.category} | ${isEntrada ? 'Entrada' : 'Saída'} - ${t.date.day}/${t.date.month}/${t.date.year}\nConta: ${account.name}',
+                                                  ),
+                                                  trailing: Text(
+                                                    (isEntrada ? '+ ' : '- ') +
+                                                        'R\$ ${t.amount.toStringAsFixed(2)}',
+                                                    style: TextStyle(
+                                                      color:
+                                                          isEntrada
+                                                              ? Colors.green
+                                                              : Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder:
+                                                            (
+                                                              context,
+                                                            ) => TransactionEditScreen(
+                                                              transaction: t,
+                                                              onFinish: (
+                                                                message,
+                                                                success,
+                                                              ) {
+                                                                ScaffoldMessenger.of(
+                                                                  context,
+                                                                ).showSnackBar(
+                                                                  SnackBar(
+                                                                    content: Text(
+                                                                      message,
+                                                                    ),
+                                                                    backgroundColor:
+                                                                        success
+                                                                            ? Colors.green
+                                                                            : Colors.red,
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8.0,
+                                    ),
+                                    child: Center(
+                                      child: OutlinedButton.icon(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                      const AllTransactionsFullScreen(),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.list_alt,
+                                          color: Color(0xFF1976D2),
+                                        ),
+                                        label: const Text(
+                                          'Ver todos',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: Color(0xFF1976D2),
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          side: const BorderSide(
+                                            color: Color(0xFF1976D2),
+                                            width: 1.5,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              30,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 24,
+                                            vertical: 12,
+                                          ),
+                                          foregroundColor: const Color(
+                                            0xFF1976D2,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
       floatingActionButton:
           (accounts.isNotEmpty)
