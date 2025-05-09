@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/account.dart';
 import '../models/transaction.dart';
@@ -56,7 +57,9 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
       _accountId = null;
       _category = 'Outros';
     }
-    _amountController = TextEditingController(text: _amount != 0.0 ? _amount.toStringAsFixed(2) : '');
+    _amountController = TextEditingController(
+      text: _amount != 0.0 ? _amount.toStringAsFixed(2).replaceAll('.', ',') : ''
+    );
   }
 
   @override
@@ -176,16 +179,26 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _amountController,
-                  decoration: const InputDecoration(labelText: 'Valor'),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-
+                  decoration: const InputDecoration(
+                    labelText: 'Valor',
+                    prefixText: 'R\$ ',
+                  ),
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9,]')),
+                  ],
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Informe o valor';
                     return null;
                   },
                   onSaved: (value) {
-                    final clean = value?.replaceAll(RegExp(r'[^0-9\.]'), '') ?? '';
-                    _amount = double.tryParse(clean) ?? 0.0;
+                    if (value != null) {
+                      // Replace comma with dot for parsing
+                      final clean = value.replaceAll(',', '.');
+                      _amount = double.tryParse(clean) ?? 0.0;
+                    } else {
+                      _amount = 0.0;
+                    }
                   },
                 ),
                 const SizedBox(height: 16),
@@ -199,6 +212,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                   decoration: const InputDecoration(labelText: 'Conta'),
                   validator: (value) => value == null ? 'Selecione a conta' : null,
                 ),
+               
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _category,
@@ -207,6 +221,22 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                       .toList(),
                   onChanged: (value) => setState(() => _category = value!),
                   decoration: const InputDecoration(labelText: 'Categoria'),
+                ),
+                 const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _type,
+                  items: const [
+                    DropdownMenuItem(value: 'entrada', child: Text('Receita')),
+                    DropdownMenuItem(value: 'saida', child: Text('Despesa')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _type = value!;
+                      // Atualiza categoria para o primeiro da lista ao trocar tipo
+                      _category = (_type == 'entrada' ? _entradaCategorias : _saidaCategorias).first;
+                    });
+                  },
+                  decoration: const InputDecoration(labelText: 'Tipo'),
                 ),
                 const SizedBox(height: 16),
                 ListTile(
