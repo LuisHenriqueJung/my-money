@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_money_gestao_financeira/screens/all_transactions_screen.dart';
+import 'package:notification_listener_service/notification_event.dart';
 import 'package:provider/provider.dart';
 import 'providers/account_provider.dart';
 import 'providers/transaction_provider.dart';
@@ -9,8 +10,10 @@ import 'screens/accounts_screen.dart';
 import 'widgets/main_bottom_app_bar.dart';
 import 'screens/transaction_edit_screen.dart';
 import 'screens/metrics_screen.dart';
+import 'package:notification_listener_service/notification_listener_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -85,7 +88,7 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: const Color(0xFFF6FFF6),
           fontFamily: 'Roboto',
         ),
-        home: const MainNavigationScreen(),
+        home: NotificationListenerWidget(child: const MainNavigationScreen()),
         routes: {
           '/add-receita': (context) => TransactionEditScreen(initialType: 'entrada'),
           '/add-despesa': (context) => TransactionEditScreen(initialType: 'saida'),
@@ -234,5 +237,97 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
         },
       ),
     );
+  }
+}
+
+class NotificationListenerWidget extends StatefulWidget {
+  final Widget child;
+  const NotificationListenerWidget({required this.child, Key? key}) : super(key: key);
+
+  @override
+  State<NotificationListenerWidget> createState() => _NotificationListenerWidgetState();
+}
+
+class _NotificationListenerWidgetState extends State<NotificationListenerWidget> {
+  @override
+  void initState() {
+    super.initState();
+    _startListening();
+  }
+
+  void _startListening() async {
+    final granted = await NotificationListenerService.isPermissionGranted();
+    if (!granted) {
+      await NotificationListenerService.requestPermission();
+    }
+    NotificationListenerService.notificationsStream.listen(_onNotificationReceived);
+  }
+
+  void _onNotificationReceived(ServiceNotificationEvent event) async {
+    if (event.packageName == 'com.google.android.apps.walletnfcrel') {
+      final String? text = event.content;
+      if (text != null && _isDespesa(text)) {
+        final valor = _extractValor(text);
+        final descricao = _extractDescricao(text);
+        if (valor != null) {
+          // Espera o contexto estar montado
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (!mounted) return;
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Nova despesa detectada'),
+              content: Text('Descrição: $descricao\nValor: R\$ ${valor.toStringAsFixed(2)}\nDeseja adicionar como despesa?'),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+                ElevatedButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Adicionar')),
+              ],
+            ),
+          );
+          if (confirmed == true) {
+            final accountProvider = Provider.of<AccountProvider>(context, listen: false);
+            final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+            final account = accountProvider.accounts.firstWhere((a) => a.active, orElse: () => accountProvider.accounts.first);
+            await transactionProvider.addTransaction(
+              account.id,
+              valor,
+              descricao,
+              DateTime.now(),
+              'saida',
+              'Outros',
+            );
+          }
+        }
+      }
+    }
+  }
+
+  bool _isDespesa(String text) {
+    // Ajuste este filtro conforme o padrão das notificações do Google Carteira
+    return text.contains('compra') || text.contains('pagamento') || text.contains('R\$');
+  }
+
+  double? _extractValor(String text) {
+    final regex = RegExp(r'R\$\s*([\d.,]+)');
+    final match = regex.firstMatch(text);
+    if (match != null) {
+      final valorStr = match.group(1)?.replaceAll('.', '').replaceAll(',', '.');
+      return double.tryParse(valorStr ?? '');
+    }
+    return null;
+  }
+
+  String _extractDescricao(String text) {
+    // Tenta extrair uma descrição curta
+    final partes = text.split(' ');
+    if (partes.length > 2) {
+      return partes.sublist(0, 4).join(' ');
+    }
+    return text;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
