@@ -420,27 +420,27 @@ class AllTransactionsScreen extends StatelessWidget {
                                     thickness: 1,
                                   ),
                                   const SizedBox(height: 12),
-                                  SizedBox(
-                                    height: 180,
+                      SizedBox(
+                        height: 180,
                                     child:
                                         totalGastos > 0
                                             ? PieChart(
-                                              PieChartData(
-                                                sections: [
+                          PieChartData(
+                            sections: [
                                                   for (
                                                     int i = 0;
                                                     i < categorias.length;
                                                     i++
                                                   )
-                                                    PieChartSectionData(
+                                PieChartSectionData(
                                                       color:
                                                           chartColors[i %
                                                               chartColors
                                                                   .length],
                                                       value:
                                                           gastosPorCategoria[categorias[i]],
-                                                      title: categorias[i],
-                                                      radius: 60,
+                                  title: categorias[i],
+                                  radius: 60,
                                                       titleStyle:
                                                           const TextStyle(
                                                             fontSize: 14,
@@ -448,11 +448,11 @@ class AllTransactionsScreen extends StatelessWidget {
                                                                 FontWeight.bold,
                                                             color: Colors.white,
                                                           ),
-                                                    ),
-                                                ],
-                                                sectionsSpace: 2,
-                                                centerSpaceRadius: 40,
-                                              ),
+                                ),
+                            ],
+                            sectionsSpace: 2,
+                            centerSpaceRadius: 40,
+                          ),
                                             )
                                             : Center(
                                               child: Text(
@@ -465,45 +465,45 @@ class AllTransactionsScreen extends StatelessWidget {
                                             ),
                                   ),
                                   if (totalGastos > 0)
-                                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
                                   if (totalGastos > 0)
-                                    Wrap(
-                                      spacing: 12,
-                                      children: [
+                      Wrap(
+                        spacing: 12,
+                        children: [
                                         for (
                                           int i = 0;
                                           i < categorias.length;
                                           i++
                                         )
-                                          Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                width: 14,
-                                                height: 14,
-                                                decoration: BoxDecoration(
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 14,
+                                  height: 14,
+                                  decoration: BoxDecoration(
                                                   color:
                                                       chartColors[i %
                                                           chartColors.length],
-                                                  shape: BoxShape.circle,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 4),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
                                               Text(
                                                 categorias[i],
                                                 style: const TextStyle(
                                                   fontSize: 13,
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                      ],
-                                    ),
-                                ],
-                              ),
+                              ],
                             ),
-                          ),
-                        ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16.0,
@@ -521,10 +521,10 @@ class AllTransactionsScreen extends StatelessWidget {
                                 horizontal: 12.0,
                                 vertical: 8.0,
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Padding(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
                                     padding: EdgeInsets.only(
                                       top: 8.0,
                                       left: 4.0,
@@ -555,10 +555,10 @@ class AllTransactionsScreen extends StatelessWidget {
                                                 ),
                                               ),
                                             )
-                                            : ListView.builder(
-                                              itemCount: ultimos10.length,
-                                              itemBuilder: (context, index) {
-                                                final t = ultimos10[index];
+                      : ListView.builder(
+                          itemCount: ultimos10.length,
+                          itemBuilder: (context, index) {
+                            final t = ultimos10[index];
                                                 final account = accountProvider
                                                     .accounts
                                                     .firstWhere(
@@ -567,7 +567,7 @@ class AllTransactionsScreen extends StatelessWidget {
                                                     );
                                                 final isEntrada =
                                                     t.type == 'entrada';
-                                                return ListTile(
+                            return ListTile(
                                                   leading: Icon(
                                                     isEntrada
                                                         ? Icons.arrow_downward
@@ -599,10 +599,10 @@ class AllTransactionsScreen extends StatelessWidget {
                                                           FontWeight.bold,
                                                     ),
                                                   ),
-                                                  onTap: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
                                                         builder:
                                                             (
                                                               context,
@@ -627,29 +627,29 @@ class AllTransactionsScreen extends StatelessWidget {
                                                                 );
                                                               },
                                                             ),
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            ),
                                   ),
-                                  Padding(
+                                );
+                              },
+                            );
+                          },
+                        ),
+                ),
+                Padding(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 8.0,
                                     ),
-                                    child: Center(
+                  child: Center(
                                       child: OutlinedButton.icon(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
                                               builder:
                                                   (context) =>
                                                       const AllTransactionsFullScreen(),
-                                            ),
-                                          );
-                                        },
+                          ),
+                        );
+                      },
                                         icon: const Icon(
                                           Icons.list_alt,
                                           color: Color(0xFF1976D2),
@@ -681,16 +681,16 @@ class AllTransactionsScreen extends StatelessWidget {
                                             0xFF1976D2,
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                    ),
+                  ),
+                ),
+              ],
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
+            ),
+          ),
+        ],
+      ),
                   ],
                 ),
               ),

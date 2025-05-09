@@ -59,4 +59,20 @@ class AccountProvider with ChangeNotifier {
     _accounts.removeWhere((a) => a.id == id);
     notifyListeners();
   }
+
+  Future<void> editAccount(int id, String name, String type, double initialBalance) async {
+    final index = _accounts.indexWhere((a) => a.id == id);
+    if (index != -1) {
+      final updated = Account(
+        id: id,
+        name: name,
+        type: type,
+        initialBalance: initialBalance,
+        active: _accounts[index].active,
+      );
+      await DatabaseHelper().updateAccount(updated);
+      _accounts[index] = updated;
+      notifyListeners();
+    }
+  }
 } 

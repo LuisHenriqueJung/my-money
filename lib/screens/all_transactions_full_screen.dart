@@ -41,10 +41,6 @@ class _AllTransactionsFullScreenState extends State<AllTransactionsFullScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Todos os Lançamentos'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
       ),
       body: Column(
         children: [

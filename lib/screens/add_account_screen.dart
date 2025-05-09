@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/account_provider.dart';
+import '../models/account.dart';
 
 class AddAccountScreen extends StatefulWidget {
   final void Function(String message, bool success)? onFinish;
-  const AddAccountScreen({Key? key, this.onFinish}) : super(key: key);
+  final Account? account;
+  const AddAccountScreen({Key? key, this.onFinish, this.account}) : super(key: key);
 
   @override
   State<AddAccountScreen> createState() => _AddAccountScreenState();
@@ -18,9 +20,19 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   bool _isSaving = false;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.account != null) {
+      _name = widget.account!.name;
+      _type = widget.account!.type;
+      _initialBalance = widget.account!.initialBalance;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Adicionar Conta')),
+      appBar: AppBar(title: Text(widget.account != null ? 'Editar Conta' : 'Adicionar Conta')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Form(
@@ -29,6 +41,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
+                initialValue: _name,
                 decoration: const InputDecoration(labelText: 'Nome da Conta'),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) => value == null || value.isEmpty ? 'Informe o nome' : null,
@@ -49,6 +62,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
+                initialValue: _initialBalance != 0.0 ? _initialBalance.toString() : '',
                 decoration: const InputDecoration(labelText: 'Saldo Inicial'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -67,8 +81,13 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                           _formKey.currentState!.save();
                           setState(() => _isSaving = true);
                           try {
-                            await Provider.of<AccountProvider>(context, listen: false)
-                                .addAccount(_name, _type, _initialBalance);
+                            if (widget.account != null) {
+                              await Provider.of<AccountProvider>(context, listen: false)
+                                  .editAccount(widget.account!.id, _name, _type, _initialBalance);
+                            } else {
+                              await Provider.of<AccountProvider>(context, listen: false)
+                                  .addAccount(_name, _type, _initialBalance);
+                            }
                             if (mounted) {
                               widget.onFinish?.call('Conta salva com sucesso!', true);
                               Navigator.pop(context);

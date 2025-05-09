@@ -8,6 +8,7 @@ import 'screens/all_transactions_full_screen.dart';
 import 'screens/accounts_screen.dart';
 import 'widgets/main_bottom_app_bar.dart';
 import 'screens/transaction_edit_screen.dart';
+import 'screens/metrics_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -106,6 +107,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
   int _currentIndex = 0;
   bool _isFabOpen = false;
   late AnimationController _fabController;
+  late Animation<Offset> _receitaOffsetAnimation;
+  late Animation<Offset> _despesaOffsetAnimation;
 
   @override
   void initState() {
@@ -114,6 +117,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
       vsync: this,
       duration: const Duration(milliseconds: 250),
     );
+    _receitaOffsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.2),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _fabController, curve: Curves.easeOut));
+    _despesaOffsetAnimation = Tween<Offset>(
+      begin: const Offset(0, 2.2),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _fabController, curve: Curves.easeOutBack));
   }
 
   @override
@@ -138,6 +149,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
     final List<Widget> _pages = [
       const AllTransactionsScreen(),
       const AllTransactionsFullScreen(),
+      const MetricsScreen(),
       const AccountsScreen(),
     ];
 
@@ -149,35 +161,42 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
           if (_isFabOpen)
             Positioned(
               bottom: 50,
-              right: 12,
+              right: 0,
+              left: 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      FloatingActionButton.extended(
-                        heroTag: 'fab_receita',
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.green,
-                        icon: const Icon(Icons.add_circle_outline),
-                        label: const Text('Receita'),
-                        onPressed: () {
-                          _toggleFab();
-                          Navigator.pushNamed(context, '/add-receita');
-                        },
+                      SlideTransition(
+                        position: _receitaOffsetAnimation,
+                        child: FloatingActionButton.extended(
+                          heroTag: 'fab_receita',
+                          backgroundColor: const Color(0xFF43A047),
+                          foregroundColor: Colors.white,
+                          icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+                          label: const Text('Receita', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          onPressed: () {
+                            _toggleFab();
+                            Navigator.pushNamed(context, '/add-receita');
+                          },
+                        ),
                       ),
                       const SizedBox(height: 12),
-                      FloatingActionButton.extended(
-                        heroTag: 'fab_despesa',
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.red,
-                        icon: const Icon(Icons.remove_circle_outline),
-                        label: const Text('Despesa'),
-                        onPressed: () {
-                          _toggleFab();
-                          Navigator.pushNamed(context, '/add-despesa');
-                        },
+                      SlideTransition(
+                        position: _despesaOffsetAnimation,
+                        child: FloatingActionButton.extended(
+                          heroTag: 'fab_despesa',
+                          backgroundColor: Color(0xFFD32F2F),
+                          foregroundColor: Colors.white,
+                          icon: const Icon(Icons.remove_circle_outline, color: Colors.white),
+                          label: const Text('Despesa', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          onPressed: () {
+                            _toggleFab();
+                            Navigator.pushNamed(context, '/add-despesa');
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -194,20 +213,21 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> with Single
             _isFabOpen = false;
           });
         },
+        showMetrics: true,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniCenterDocked,
       floatingActionButton: AnimatedBuilder(
         animation: _fabController,
         builder: (context, child) {
           return Transform.rotate(
-            angle: _fabController.value * 0.75 * 3.1416, // ~135 graus
+            angle: _fabController.value * 0.50 * 3.141, // ~135 graus
             child: FloatingActionButton(
               heroTag: 'fab_main',
               backgroundColor: _isFabOpen ? Colors.white : const Color(0xFF43A047),
               foregroundColor: _isFabOpen ? const Color(0xFF43A047) : Colors.white,
               onPressed: _toggleFab,
               child: _isFabOpen
-                  ? const Icon(Icons.close, color: Color(0xFF43A047), size: 28)
+                  ? const Icon(Icons.close, color: Color(0xFF43A047), size: 24)
                   : const Icon(Icons.add, color: Colors.white, size: 28),
             ),
           );

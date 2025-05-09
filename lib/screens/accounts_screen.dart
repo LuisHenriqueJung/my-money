@@ -136,13 +136,21 @@ class _AccountsScreenState extends State<AccountsScreen> {
                       accountProvider.toggleAccountActive(a.id);
                     },
                   ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddAccountScreen(account: a),
+                      ),
+                    );
+                  },
                 );
               },
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton.icon(
+            padding: const EdgeInsets.all(26.0),
+            child: OutlinedButton.icon(
               icon: const Icon(Icons.add),
               label: const Text('Adicionar Conta'),
               onPressed: () {
