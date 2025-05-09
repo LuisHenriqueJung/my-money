@@ -16,4 +16,31 @@ class Transaction {
     required this.type,
     required this.category,
   });
+
+  Map<String, dynamic> toMap({bool includeId = true}) {
+    final map = {
+      'accountId': accountId,
+      'amount': amount,
+      'description': description,
+      'date': date.toIso8601String(),
+      'type': type,
+      'category': category,
+    };
+    if (includeId && id != 0) {
+      map['id'] = id;
+    }
+    return map;
+  }
+
+  factory Transaction.fromMap(Map<String, dynamic> map) {
+    return Transaction(
+      id: map['id'],
+      accountId: map['accountId'],
+      amount: map['amount'],
+      description: map['description'],
+      date: DateTime.parse(map['date']),
+      type: map['type'],
+      category: map['category'],
+    );
+  }
 } 

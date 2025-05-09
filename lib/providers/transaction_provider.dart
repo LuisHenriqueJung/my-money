@@ -1,19 +1,33 @@
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
+import '../database_helper.dart';
 
 class TransactionProvider with ChangeNotifier {
   final List<Transaction> _transactions = [];
-  int _nextId = 1;
+  bool _isLoading = true;
 
+  bool get isLoading => _isLoading;
   List<Transaction> get transactions => List.unmodifiable(_transactions);
 
   List<Transaction> getTransactionsByAccount(int accountId) {
     return _transactions.where((t) => t.accountId == accountId).toList();
   }
 
-  void addTransaction(int accountId, double amount, String description, DateTime date, String type, String category) {
+  TransactionProvider() {
+    _loadTransactions();
+  }
+
+  Future<void> _loadTransactions() async {
+    final dbTransactions = await DatabaseHelper().getTransactions();
+    _transactions.clear();
+    _transactions.addAll(dbTransactions);
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> addTransaction(int accountId, double amount, String description, DateTime date, String type, String category) async {
     final transaction = Transaction(
-      id: _nextId++,
+      id: 0, // id será gerado pelo banco
       accountId: accountId,
       amount: amount,
       description: description,
@@ -21,15 +35,24 @@ class TransactionProvider with ChangeNotifier {
       type: type,
       category: category,
     );
-    _transactions.add(transaction);
+    final id = await DatabaseHelper().insertTransaction(transaction);
+    _transactions.add(Transaction(
+      id: id,
+      accountId: accountId,
+      amount: amount,
+      description: description,
+      date: date,
+      type: type,
+      category: category,
+    ));
     notifyListeners();
   }
 
-  void editTransaction(int id, double amount, String description, DateTime date, String type, String category) {
+  Future<void> editTransaction(int id, double amount, String description, DateTime date, String type, String category) async {
     final index = _transactions.indexWhere((t) => t.id == id);
     if (index != -1) {
       final old = _transactions[index];
-      _transactions[index] = Transaction(
+      final updated = Transaction(
         id: old.id,
         accountId: old.accountId,
         amount: amount,
@@ -38,22 +61,15 @@ class TransactionProvider with ChangeNotifier {
         type: type,
         category: category,
       );
+      await DatabaseHelper().updateTransaction(updated);
+      _transactions[index] = updated;
       notifyListeners();
     }
   }
 
-  void removeTransaction(int id) {
+  Future<void> removeTransaction(int id) async {
+    await DatabaseHelper().deleteTransaction(id);
     _transactions.removeWhere((t) => t.id == id);
     notifyListeners();
-  }
-
-  TransactionProvider() {
-    // Lançamentos mocados
-    addTransaction(1, 200.0, 'Salário', DateTime.now().subtract(const Duration(days: 5)), 'entrada', 'Outros');
-    addTransaction(1, 50.0, 'Supermercado', DateTime.now().subtract(const Duration(days: 3)), 'saida', 'Alimentação');
-    addTransaction(2, 30.0, 'Rendimento', DateTime.now().subtract(const Duration(days: 2)), 'entrada', 'Outros');
-    addTransaction(3, 20.0, 'Lanche', DateTime.now().subtract(const Duration(days: 1)), 'saida', 'Alimentação');
-    addTransaction(1, 15.0, 'Uber', DateTime.now().subtract(const Duration(days: 1)), 'saida', 'Transporte');
-    addTransaction(1, 100.0, 'Farmácia', DateTime.now().subtract(const Duration(days: 4)), 'saida', 'Saúde');
   }
 } 

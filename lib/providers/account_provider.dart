@@ -1,41 +1,62 @@
 import 'package:flutter/material.dart';
 import '../models/account.dart';
+import '../database_helper.dart';
 
 class AccountProvider with ChangeNotifier {
   final List<Account> _accounts = [];
-  int _nextId = 1;
+  bool _isLoading = true;
 
+  bool get isLoading => _isLoading;
   List<Account> get accounts => List.unmodifiable(_accounts);
 
   AccountProvider() {
-    // Contas mocadas
-    addAccount('Conta Corrente', 'Conta Corrente', 1000.0);
-    addAccount('Poupança', 'Poupança', 500.0);
-    addAccount('Carteira', 'Carteira', 150.0);
+    _loadAccounts();
   }
 
-  void addAccount(String name, String type, double initialBalance) {
+  Future<void> _loadAccounts() async {
+    final dbAccounts = await DatabaseHelper().getAccounts();
+    _accounts.clear();
+    _accounts.addAll(dbAccounts);
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> addAccount(String name, String type, double initialBalance) async {
     final account = Account(
-      id: _nextId++,
+      id: 0, // id será gerado pelo banco
       name: name,
       type: type,
       initialBalance: initialBalance,
     );
-    _accounts.add(account);
+    final id = await DatabaseHelper().insertAccount(account);
+    _accounts.add(Account(
+      id: id,
+      name: name,
+      type: type,
+      initialBalance: initialBalance,
+    ));
     notifyListeners();
   }
 
-  void toggleAccountActive(int id) {
+  Future<void> toggleAccountActive(int id) async {
     final index = _accounts.indexWhere((a) => a.id == id);
     if (index != -1) {
-      _accounts[index] = Account(
+      final updated = Account(
         id: _accounts[index].id,
         name: _accounts[index].name,
         type: _accounts[index].type,
         initialBalance: _accounts[index].initialBalance,
         active: !_accounts[index].active,
       );
+      await DatabaseHelper().updateAccount(updated);
+      _accounts[index] = updated;
       notifyListeners();
     }
+  }
+
+  Future<void> deleteAccount(int id) async {
+    await DatabaseHelper().deleteAccount(id);
+    _accounts.removeWhere((a) => a.id == id);
+    notifyListeners();
   }
 } 

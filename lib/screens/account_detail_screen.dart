@@ -3,6 +3,7 @@ import '../models/account.dart';
 import 'transaction_list_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
+import '../providers/account_provider.dart';
 
 class AccountDetailScreen extends StatelessWidget {
   final Account account;
@@ -40,17 +41,39 @@ class AccountDetailScreen extends StatelessWidget {
             Text('R\$ ${saldoAtual.toStringAsFixed(2)}', style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(height: 32),
             Center(
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.list),
-                label: const Text('Ver Lançamentos'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TransactionListScreen(account: account),
-                    ),
-                  );
-                },
+              child: Column(
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.list),
+                    label: const Text('Ver Lançamentos'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TransactionListScreen(account: account),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Consumer<AccountProvider>(
+                    builder: (context, provider, _) {
+                      final acc = provider.accounts.firstWhere((a) => a.id == account.id, orElse: () => account);
+                      return ElevatedButton.icon(
+                        icon: Icon(acc.active ? Icons.block : Icons.check_circle),
+                        label: Text(acc.active ? 'Desabilitar Conta' : 'Habilitar Conta'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: acc.active ? Colors.red : Color(0xFF43A047),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        ),
+                        onPressed: () async {
+                          await Provider.of<AccountProvider>(context, listen: false).toggleAccountActive(acc.id);
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ],
