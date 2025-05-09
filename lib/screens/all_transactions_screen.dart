@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_money_gestao_financeira/widgets/main_bottom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/transaction_provider.dart';
@@ -693,77 +694,7 @@ class AllTransactionsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-      floatingActionButton:
-          (accounts.isNotEmpty)
-              ? Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  FloatingActionButton(
-                    heroTag: 'add_receita',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => TransactionEditScreen(
-                                transaction: null,
-                                account: null,
-                                initialType: 'entrada',
-                                onFinish: (message, success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(message),
-                                      backgroundColor:
-                                          success ? Colors.green : Colors.red,
-                                    ),
-                                  );
-                                },
-                              ),
-                        ),
-                      );
-                    },
-                    backgroundColor: Colors.white,
-                    child: const Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.green,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  FloatingActionButton(
-                    heroTag: 'add_despesa',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => TransactionEditScreen(
-                                transaction: null,
-                                account: null,
-                                initialType: 'saida',
-                                onFinish: (message, success) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(message),
-                                      backgroundColor:
-                                          success ? Colors.green : Colors.red,
-                                    ),
-                                  );
-                                },
-                              ),
-                        ),
-                      );
-                    },
-                    backgroundColor: Colors.white,
-                    child: const Icon(
-                      Icons.remove_circle_outline,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              )
-              : null,
+      
     );
   }
 }

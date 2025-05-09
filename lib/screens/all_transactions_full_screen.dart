@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_money_gestao_financeira/widgets/main_bottom_app_bar.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/account_provider.dart';
@@ -282,43 +283,7 @@ class _AllTransactionsFullScreenState extends State<AllTransactionsFullScreen> {
           ),
         ],
       ),
-      floatingActionButton: filtered.isNotEmpty
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                FloatingActionButton.extended(
-                  heroTag: 'fab_receita',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TransactionEditScreen(initialType: 'entrada'),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_downward, color: Colors.white),
-                  label: const Text('Receita'),
-                  backgroundColor: Colors.green,
-                ),
-                const SizedBox(height: 12),
-                FloatingActionButton.extended(
-                  heroTag: 'fab_despesa',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TransactionEditScreen(initialType: 'saida'),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_upward, color: Colors.white),
-                  label: const Text('Despesa'),
-                  backgroundColor: Colors.red,
-                ),
-              ],
-            )
-          : null,
+      
     );
   }
 } 
