@@ -28,6 +28,9 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
   late int? _accountId;
   bool _isSaving = false;
   late TextEditingController _amountController;
+  final FocusNode _descFocus = FocusNode();
+  final FocusNode _amountFocus = FocusNode();
+  final FocusNode _accountFocus = FocusNode();
 
   List<String> get _entradaCategorias => ['Salário', 'Investimentos', 'Outros'];
   List<String> get _saidaCategorias => ['Alimentação', 'Transporte', 'Saúde', 'Lazer', 'Outros'];
@@ -64,6 +67,9 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
 
   @override
   void dispose() {
+    _descFocus.dispose();
+    _amountFocus.dispose();
+    _accountFocus.dispose();
     _amountController.dispose();
     super.dispose();
   }
@@ -149,7 +155,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
               left: 8,
               top: 55,
               child: IconButton(
-                icon:  Icon(Icons.arrow_back, color: (widget.initialType == 'saida' ? Colors.red : Colors.green), size: 28),
+                icon:  Icon(Icons.arrow_back, color: (widget.initialType == 'saida' ? Colors.red : widget.initialType == 'entrada' ? Colors.green : Colors.white), size: 28),
                 onPressed: () => Navigator.of(context).pop(),
                 tooltip: 'Voltar',
               ),
@@ -175,6 +181,11 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                   onSaved: (value) => _description = value != null && value.isNotEmpty
                       ? value[0].toUpperCase() + value.substring(1)
                       : '',
+                  focusNode: _descFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_amountFocus);
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -200,6 +211,11 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                       _amount = 0.0;
                     }
                   },
+                  focusNode: _amountFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_accountFocus);
+                  },
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
@@ -211,6 +227,7 @@ class _TransactionEditScreenState extends State<TransactionEditScreen> {
                   onChanged: (value) => setState(() => _accountId = value),
                   decoration: const InputDecoration(labelText: 'Conta'),
                   validator: (value) => value == null ? 'Selecione a conta' : null,
+                  focusNode: _accountFocus,
                 ),
                
                 const SizedBox(height: 16),
